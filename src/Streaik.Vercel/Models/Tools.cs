@@ -1,0 +1,53 @@
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Streaik.Vercel.Models;
+
+public class Tool
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = default!;
+
+    [JsonPropertyName("description")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("title")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("defer_loading")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? DeferLoading { get; set; }
+
+    [JsonPropertyName("allowed_callers")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IEnumerable<string>? AllowedCallers { get; set; }
+
+    [JsonPropertyName("inputSchema")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ToolSchema? InputSchema { get; set; }
+
+    [JsonPropertyName("outputSchema")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ToolSchema? OutputSchema { get; set; }
+}
+
+public class ToolSchema
+{
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = default!;
+
+    [JsonPropertyName("properties")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, object>? Properties { get; set; }
+
+    [JsonPropertyName("required")]
+    public List<string> Required { get; set; } = [];
+
+    // Preserve JSON Schema keywords not represented by the convenience fields,
+    // including additionalProperties, $defs, composition, and extension keywords.
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? AdditionalProperties { get; set; }
+}
