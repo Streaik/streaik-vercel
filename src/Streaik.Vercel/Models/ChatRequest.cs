@@ -22,13 +22,9 @@ public class ChatRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MaxToolCalls { get; set; }
 
-    [JsonPropertyName("temperature")]
+    [JsonPropertyName("reasoning")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public double? Temperature { get; set; }
-
-    [JsonPropertyName("topP")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public double? TopP { get; set; }
+    public string? Reasoning { get; set; }
 
     [JsonPropertyName("maxOutputTokens")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -37,11 +33,6 @@ public class ChatRequest
     [JsonPropertyName("tools")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<Tool>? Tools { get; set; } = [];
-
-    // Client opts into signed requests to review browser tool results before sharing them.
-    [JsonPropertyName("clientToolResultApproval")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ClientToolResultApproval { get; set; }
 
     [JsonPropertyName("providerMetadata")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
