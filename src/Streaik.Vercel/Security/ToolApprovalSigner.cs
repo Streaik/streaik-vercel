@@ -103,6 +103,25 @@ public sealed class ToolApprovalSigner
         finally { CryptographicOperations.ZeroMemory(key); }
     }
 
+    // A distinct domain binds continuation metadata as well as the tool input. Ordinary v1 signatures are unchanged.
+    internal string SignContinuation(string purpose, string scope, string id, object payload) =>
+        CreateSignature(id, new ToolCallPart { ToolCallId = id, ToolName = "streaik_hosted_mcp_" + purpose,
+            ProviderExecuted = true, Title = scope, Input = payload });
+
+    internal void ValidateContinuation(string? signature, string purpose, string scope, string id, object payload)
+    {
+        if (signature is not { Length: 67 } || !signature.StartsWith(Prefix, StringComparison.Ordinal))
+            throw new ToolApprovalSignatureException();
+        try
+        {
+            var expected = SignContinuation(purpose, scope, id, payload);
+            if (!CryptographicOperations.FixedTimeEquals(Convert.FromHexString(signature[Prefix.Length..]),
+                Convert.FromHexString(expected[Prefix.Length..]))) throw new ToolApprovalSignatureException();
+        }
+        catch (Exception error) when (error is FormatException or JsonException or ArgumentException or OverflowException)
+        { throw new ToolApprovalSignatureException(); }
+    }
+
     public async IAsyncEnumerable<UIMessagePart> SignOutgoing(
         IAsyncEnumerable<UIMessagePart> stream,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -116,7 +135,7 @@ public sealed class ToolApprovalSigner
             {
                 ToolApprovalRequestUIPart value => new ToolApprovalRequestUIPart
                 {
-                    ApprovalId = value.ApprovalId, ToolCallId = value.ToolCallId, Signature = signature,
+                    ApprovalId = value.ApprovalId, ToolCallId = value.ToolCallId, Signature = value.Signature ?? signature,
                     ApprovalDescriptor = value.ApprovalDescriptor, InputSchemaInput = value.InputSchemaInput,
                     Reason = value.Reason, IsAutomatic = value.IsAutomatic
                 },
