@@ -135,7 +135,9 @@ public sealed class ToolApprovalSigner
             {
                 ToolApprovalRequestUIPart value => new ToolApprovalRequestUIPart
                 {
-                    ApprovalId = value.ApprovalId, ToolCallId = value.ToolCallId, Signature = value.Signature ?? signature,
+                    ApprovalId = value.ApprovalId, ToolCallId = value.ToolCallId,
+                    Signature = tools[callId] is { ProviderExecuted: true, ToolName: HostedToolContinuation.ApprovalName }
+                        ? value.Signature ?? signature : signature,
                     ApprovalDescriptor = value.ApprovalDescriptor, InputSchemaInput = value.InputSchemaInput,
                     Reason = value.Reason, IsAutomatic = value.IsAutomatic
                 },
